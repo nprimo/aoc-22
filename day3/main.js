@@ -31,7 +31,11 @@ const getItemValue = (letter) => {
         return alphaUp.search(letter) + 27
 }
 
-const score = input.split('\n')
+const isCommonItem = (item, nextSack1, nextSack2) => {
+    return (nextSack1.search(item) > -1 && nextSack2.search(item) > -1)
+}
+
+const score1 = input.split('\n')
     .map(row => {
         return getCommonItem(row)
     })
@@ -40,4 +44,18 @@ const score = input.split('\n')
     })
     .reduce((a, b) => a + b)
 
-console.log(score)
+console.log(`Score part 1: ${score1}`)
+
+const sackList = input.split('\n')
+const commonItem = []
+for (let i = 0; i < sackList.length - 1; i += 3) {
+    for (const item of sackList[i]) {
+        if (isCommonItem(item, sackList[i + 1], sackList[i + 2])) {
+            commonItem.push(item)
+            break
+        }
+    }
+}
+
+const score2 = commonItem.map(item => getItemValue(item)).reduce((a, b) => a + b)
+console.log(`Score part 2: ${score2}`)
