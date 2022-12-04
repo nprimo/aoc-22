@@ -11,19 +11,28 @@ const input = await fs.readFile('input', {encoding: 'utf8'})
 
 const pairs = input.split('\n').map(row => row.split(','))
 
+const isFullyIncluded = (range1, range2) => {
+    return (parseInt(range1[0]) <= parseInt(range2[0]) && parseInt(range1[1]) >= parseInt(range2[1]))
+        || (parseInt(range2[0]) <= parseInt(range1[0]) && parseInt(range2[1]) >= parseInt(range1[1]))
+}
 
+const isOverlapping = (range1, range2) => {
+    return parseInt(range1[1]) >= parseInt(range2[0])
+        && parseInt(range2[1]) >= parseInt(range1[0])
+}
 
-let count = 0
+let countIncluded = 0
+let countOverlap = 0
 for (const pair of pairs) {
     if (pair.length != 2) break
     const [range1, range2]
         = pair.map(section => section.split('-'))
-    if (
-        (parseInt(range1[0]) <= parseInt(range2[0]) && parseInt(range1[1]) >= parseInt(range2[1]))
-        || (parseInt(range2[0]) <= parseInt(range1[0]) && parseInt(range2[1]) >= parseInt(range1[1]))
-    ) {
-        count++
+    if (isFullyIncluded(range1, range2)) countIncluded++
+    if (isOverlapping(range1, range2)) {
+        countOverlap++
+        console.log(pair)
     }
 }
 
-console.log(count)
+console.log(`Fully included ranges: ${countIncluded}`)
+console.log(`Overlapping ranges: ${countOverlap}`)
