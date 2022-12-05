@@ -48,6 +48,13 @@ const execMove = ({ quantity, from, to, piles }) => {
   }
 }
 
+const execMove2 = ({ quantity, from, to, piles }) => {
+  if (quantity > 0 && piles[from - 1].length > 0) {
+    piles[to - 1] = piles[from - 1].slice(0, quantity) + piles[to - 1]
+    piles[from - 1] = piles[from - 1].slice(quantity)
+  }
+}
+
 const piles = {}
 for (const row of input.trimEnd().split('\n')) {
   const isMove = row.search('move') > -1
@@ -56,7 +63,8 @@ for (const row of input.trimEnd().split('\n')) {
     updatePiles(newBlocks, piles)
   } else if (isMove) {
     const { quantity, from, to } = parseInstruction(row)
-    execMove({ quantity, from, to, piles })
+    //execMove({ quantity, form, to, piles }) // for part1
+    execMove2({ quantity, from, to, piles })
   }
 }
 
