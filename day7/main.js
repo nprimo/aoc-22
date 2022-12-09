@@ -1,3 +1,7 @@
+import fs from 'node:fs/promises'
+
+const input = await fs.readFile('input', { encoding: 'utf8' })
+
 const inputTest = `$ cd /
 $ ls
 dir a
@@ -22,7 +26,7 @@ $ ls
 5626152 d.ext
 7214296 k`
 
-const rows = inputTest.split('\n')
+const rows = input.trimEnd().split('\n')
 
 const isCommand = row => row.includes('$')
 const isDir = row => row.includes('dir')
@@ -65,11 +69,24 @@ const updateTree = (row, pwd, tree) => {
   return tree
 }
 
+const getTotalSize = (tree, size) => {
+  Object.keys(tree).forEach(key => {
+    if (typeof tree[key] === 'object') {
+      size = getTotalSize(tree[key], size)
+    } else {
+      size += tree.tot
+    }
+  })
+  return size
+}
+
 let pwd = ''
 let tree = { tot: 0 }
+const dirSize = {}
 for (const row of rows) {
   if (isDir(row)) {
     tree = updateTree(row, pwd, tree)
+    dirSize[row.split(' ')[1]] = 0
   } else if (isCommand(row)) {
     const [_, cmd, arg] = row.split(' ')
     if (cmd === 'cd') {
@@ -78,29 +95,19 @@ for (const row of rows) {
   } else {
     let currPos = getCurrPos(pwd, tree)
     const [size, _] = row.split(' ')
+    const dirList = pwd.split('/')
+    for (const dir of dirList)
+      dir.length > 0 && (dirSize[dir] += parseInt(size))
     currPos.tot += parseInt(size)
   }
 }
 
-console.log(tree)
+dirSize['/'] = getTotalSize(tree, 0)
 
-const getDirSize = (tree, size) => {
-  Object.keys(tree).forEach(key => {
-    if (typeof tree[key] === 'object') {
-      size = getDirSize(tree[key], size)
-    } else {
-      size += tree.tot
-    }
-  })
-  return size
-}
+const tot = Object.values(dirSize).reduce((sum, curr) => {
+  if (curr <= 100000) {
+    return sum + curr
+  } else return sum
+})
 
-const dirSize = {}
-for (const key of Object.keys(tree)) {
-  if (typeof tree[key] === 'obejct') {
-    dirSize[key] = getDirSize(tree[key], 0)
-  }
-}
-
-console.log(dirSize)
-console.log(getDirSize(tree, 0))
+console.log(tot)
