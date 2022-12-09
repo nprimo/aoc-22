@@ -24,19 +24,13 @@ const isTailHeadNear = (head, tail) => {
 }
 
 for (const row of input.trimEnd().split('\n')) {
-  console.log('--')
-  console.log('current head: ' + currHead)
-  console.log('instructions: ' + row)
   const [direction, steps] = row.split(' ')
   for (let i = steps; i > 0; i--) {
     const oldHead = [...currHead]
-    console.log('new head pos:')
     currHead[0] += move[direction][0]
     currHead[1] += move[direction][1]
-    console.log(currHead)
     if (!isTailHeadNear(currHead, currTail)) {
       currTail = oldHead
-      console.log('> new tail: ' + currTail)
       if (!tailPositions.includes(currTail.join())) {
         tailPositions.push(currTail.join())
       }
@@ -44,5 +38,4 @@ for (const row of input.trimEnd().split('\n')) {
   }
 }
 
-console.log(tailPositions)
 console.log(tailPositions.length)
