@@ -1,4 +1,3 @@
-import exp from 'node:constants'
 import fs from 'node:fs/promises'
 
 const inputTest = `root: pppw + sjmn
@@ -17,7 +16,10 @@ lgvd: ljgn * ptdq
 drzm: hmdt - zczc
 hmdt: 32`
 
-const rows = inputTest.split('\n')
+const input = await fs.readFile('input', { encoding: 'utf8' })
+
+//const rows = inputTest.split('\n')
+const rows = input.trim().split('\n')
 const monkeyNumbers = {}
 
 for (const row of rows) {
@@ -26,10 +28,6 @@ for (const row of rows) {
 }
 
 const isOperator = str => str && /[\+-\/\*]/.test(str)
-//str.includes('+') ||
-//str.includes('-') ||
-//str.includes('/') ||
-//str.includes('*')
 
 const isNumber = str => str && /^[0-9]+$/.test(str)
 
@@ -41,19 +39,25 @@ const isAllDigits = root => {
   return true
 }
 
-let root = monkeyNumbers['root']
-
-const expandRoot = root => {
-  for (const val of root.split(' ')) {
+const expandNumbers = numbers => {
+  for (const val of numbers.split(' ')) {
     if (!isOperator(val) && !isNumber(val)) {
-      root = root.replace(val, monkeyNumbers[val])
+      if (isNumber(monkeyNumbers[val])) {
+        numbers = numbers.replace(val, monkeyNumbers[val])
+      }
     }
   }
-  return root
+  if (isAllDigits(numbers)) return eval(numbers)
+  return numbers
 }
 
-while (!isAllDigits(root)) {
-  root = expandRoot(root)
+while (typeof monkeyNumbers['root'] !== 'number') {
+  for (const [monkey, numbers] of Object.entries(monkeyNumbers)) {
+    if (typeof monkeyNumbers[monkey] !== 'number') {
+      monkeyNumbers[monkey] = expandNumbers(numbers)
+    }
+  }
 }
 
-console.log(root)
+console.log(monkeyNumbers['root'])
+console.log(monkeyNumbers['root'] === 24947355373338)
